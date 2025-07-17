@@ -1,0 +1,118 @@
+
+
+
+
+
+
+
+
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Welcome, {{ username }}!</h2>
+<a href="/logout">Logout</a>
+<br><br>
+
+<!-- 🔹 Add Expense Form -->
+<h3>Add Expense</h3>
+<form method="POST" action="/add-expense">
+    <label>Amount:</label>
+    <input type="number" step="0.01" name="amount" required>
+
+    <label>Category:</label>
+    <input type="text" name="category" required>
+
+    <label>Date:</label>
+    <input type="date" name="date" required>
+
+    <label>Note:</label>
+    <input type="text" name="note">
+
+    <button type="submit">Add</button>
+</form>
+
+<hr>
+
+<!-- 🔹 Filter Form -->
+<h3>Filter Expenses</h3>
+<form method="get" action="/dashboard">
+    <label>Start Date:</label>
+    <input type="date" name="start_date" value="{{ start_date }}">
+
+    <label>End Date:</label>
+    <input type="date" name="end_date" value="{{ end_date }}">
+
+    <label>Category:</label>
+    <select name="category">
+        <option value="">All</option>
+        {% for cat in categories %}
+            <option value="{{ cat }}" {% if filter_category == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Filter</button>
+    <a href="/dashboard">Clear</a>
+</form>
+
+<hr>
+
+<!-- 🔹 Expenses Table -->
+<h3>Your Expenses:</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+    <tr>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Category</th>
+        <th>Note</th>
+        <th>Actions</th>
+    </tr>
+    {% for expense in expenses %}
+    <tr>
+        <td>{{ expense["date"] }}</td>
+        <td>{{ expense["amount"] }}</td>
+        <td>{{ expense["category"] }}</td>
+        <td>{{ expense["note"] }}</td>
+        <td>
+            <a href="{{ url_for('edit_expense', expense_id=expense['id']) }}">✏️ Edit</a>
+            <form action="{{ url_for('delete_expense', expense_id=expense['id']) }}" method="POST" style="display:inline;">
+                <button type="submit" onclick="return confirm('Are you sure you want to delete this expense?')">🗑️ Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<!-- 🔹 Expense Distribution Pie Chart -->
+<h3>Expense Distribution by Category</h3>
+<canvas id="pieChart" width="400" height="400"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('pieChart').getContext('2d');
+const pieChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: {{ categories|tojson }},
+        datasets: [{
+            label: 'Expenses by Category',
+            data: {{ totals|tojson }},
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF',
+                '#FF9F40',
+                '#C9CBCF'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+    }
+});
+</script>
+{% endblock %}
