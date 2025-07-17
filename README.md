@@ -1,4 +1,4 @@
-![Dashboard Screenshot]("C:\Users\rafiu\OneDrive\Documents\Pictures\Screenshots\Screenshot 2025-07-17 123316.png")
+
 
 # Expense Tracker
 
